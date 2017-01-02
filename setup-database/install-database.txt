@@ -1,0 +1,3 @@
+sudo -u postgres createdb p99tunnel
+sudo -u postgres createuser p99tunnel --pwprompt
+# put your password in the database-password file
