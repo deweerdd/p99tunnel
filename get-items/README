@@ -1,3 +1,2 @@
 SETUP:
-    sudo apt-get install python3-bs4 python3-pip
-    sudo pip3 install requirements.txt
+    sudo apt-get install python3-bs4
