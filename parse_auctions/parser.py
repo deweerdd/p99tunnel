@@ -11,6 +11,28 @@ IS_SELLING_TRIE = pytrie.StringTrie(
     wts=True, selling=True, wtb=False, buying=False)
 
 
+def split_line(line):
+  """Parses text and returns a timestamp, character, and message."""
+  # Lines like: [Sun Jan 01 13:45:35 2017] Toon auctions, 'WTS Ale'
+  split_regex = r"^\[[^ ]+ ([^]]+)] ([^ ]+) auctions, '(.+)'$"
+  pattern = re.compile(split_regex)
+  match = pattern.match(line)
+  if match is None:
+    return None, None, None
+  return match.group(1), match.group(2), match.group(3)
+
+
+def parse_timestamp(timestamp_str):
+  """Parses the timestamp_str and returns a datetime."""
+  # TODO: support timezones
+  timestamp = dateutil.parser.parse(timestamp_str)
+  return timestamp
+
+
+def is_price(s):
+  return False
+
+
 class Item(object):
 
   def __init__(self, item_id, is_selling, price=None):
@@ -45,22 +67,6 @@ class Parser(object):
     if test_item_table:
       self.items = pytrie.StringTrie(**test_item_table)
 
-  def split_line(self, line):
-    """Parses text and returns a timestamp, character, and message."""
-    # Lines like: [Sun Jan 01 13:45:35 2017] Toon auctions, 'WTS Ale'
-    split_regex = r"^\[[^ ]+ ([^]]+)] ([^ ]+) auctions, '(.+)'$"
-    pattern = re.compile(split_regex)
-    match = pattern.match(line)
-    if match is None:
-      return None, None, None
-    return match.group(1), match.group(2), match.group(3)
-
-  def parse_timestamp(self, timestamp_str):
-    """Parses the timestamp_str and returns a datetime."""
-    # TODO: support timezones
-    timestamp = dateutil.parser.parse(timestamp_str)
-    return timestamp
-
   def parse_auction(self, auction_message):
     """Parses an auction message and returns a list of items.
 
@@ -88,12 +94,16 @@ class Parser(object):
       message_so_far += c
       is_selling_matches = IS_SELLING_TRIE.items(prefix=message_so_far)
       matches = self.items.items(prefix=message_so_far)
-      if not matches and not is_selling_matches:
+      if message_so_far.strip() == '':
+        message_so_far = ''
+      elif item and is_price(message_so_far):
+        item.price = parse_price(message_so_far)
+      elif not matches and not is_selling_matches:
         message_so_far = ''
         price = None
         item = None
       elif (len(is_selling_matches) == 1 and
-          is_selling_matches[0][0] == message_so_far):
+            is_selling_matches[0][0] == message_so_far):
         is_selling = is_selling_matches[0][1]
         message_so_far = ''
         price = None
