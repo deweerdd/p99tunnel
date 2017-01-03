@@ -35,7 +35,7 @@ class Item(object):
       message += 'WTB '
     message += 'Item {}'.format(self.item_id)
     if self.price != None:
-      message += ' {}'.format(self.price)
+      message += ' {}pp'.format(self.price)
     return message
 
 

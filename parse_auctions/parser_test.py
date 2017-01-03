@@ -17,6 +17,21 @@ AUCTION_TEST_CASES = {
       parser.Item(13, True, None), parser.Item(17, True, None)],
     'WTS Ale': [parser.Item(17, True, None)],
     'WTB Ale': [parser.Item(17, False, None)],
+    'WTS Cloak of Shadows WTB Ale': [
+      parser.Item(13, True, None), parser.Item(17, False, None)],
+    'WTS Cloak of ShadowsAle': [
+      parser.Item(13, True, None), parser.Item(17, True, None)],
+    'WTB Cloak of ShadowsAle': [
+      parser.Item(13, False, None), parser.Item(17, False, None)],
+    'Ale 123': [parser.Item(17, True, 123)],
+    'Ale 123pp': [parser.Item(17, True, 123)],
+    'Ale 1k': [parser.Item(17, True, 1000)],
+    'Ale 1.2': [parser.Item(17, True, 1200)],
+    'Ale 1.2k': [parser.Item(17, True, 1200)],
+    'Ale 1.2k Cloak of Shadows': [
+      parser.Item(17, True, 1200), parser.Item(13, True, None)],
+    'Ale 1.2k Cloak of Shadows 375': [
+      parser.Item(17, True, 1200), parser.Item(13, True, 375)],
 }
 
 
@@ -56,7 +71,10 @@ class ParserTest(unittest.TestCase):
   def test_parse_auction(self):
     for auction_message, expected_output in AUCTION_TEST_CASES.items():
       actual_output = self.parser.parse_auction(auction_message)
-      self.assertEqual(actual_output, expected_output)
+      self.assertEqual(
+          actual_output, expected_output,
+          msg='Auction: {}, Expected: {}, Actual:{}'.format(
+            auction_message, expected_output, actual_output))
 
 
 if __name__ == '__main__':
