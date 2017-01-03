@@ -9,6 +9,14 @@ import pytrie
 
 IS_SELLING_TRIE = pytrie.StringTrie(
     wts=True, selling=True, wtb=False, buying=False)
+PRICE_REGEX = re.compile(r'^\s*(\d*\.?\d*)(k|p|pp)?$')
+
+DEBUG = True
+
+
+def debug_print(message):
+  if DEBUG:
+    print(message)
 
 
 def split_line(line):
@@ -30,7 +38,29 @@ def parse_timestamp(timestamp_str):
 
 
 def is_price(s):
-  return False
+  return PRICE_REGEX.match(s)
+
+
+def parse_price(price_str):
+  match = PRICE_REGEX.match(price_str)
+  amount = match.group(1)
+  if len(amount) == 0:
+    return None
+  denomination = match.group(2)
+  if denomination == 'p' or denomination == 'pp':
+    factor = 1
+  elif denomination == 'k':
+    factor = 1000
+  # If someone says "WTS GEB 1.8" they probably mean 1.8k
+  elif '.' in amount and not amount.endswith('.'):
+    factor = 1000
+  # If someone says "WTS Ale 15" they probably mean 15pp
+  else:
+    factor = 1
+  if '.' in amount:
+    return int(float(amount) * factor)
+  else:
+    return int(amount) * factor
 
 
 class Item(object):
@@ -86,29 +116,40 @@ class Parser(object):
     all_items = []
     lowercase_message = auction_message.lower()
     is_selling = True
-    price = None
     item = None
     # Find the items
     message_so_far = ''
+    # TODO: below is complicated.  Figure out a way to refactor it.
     for c in lowercase_message:
       message_so_far += c
+      message_so_far = message_so_far.lstrip()
+      debug_print(message_so_far)
       is_selling_matches = IS_SELLING_TRIE.items(prefix=message_so_far)
       matches = self.items.items(prefix=message_so_far)
-      if message_so_far.strip() == '':
-        message_so_far = ''
-      elif item and is_price(message_so_far):
+      # If one item is done, finish it.
+      if item and item.price and not is_price(message_so_far):
+        debug_print('Finish item with price')
+        item = None
+        message_so_far = c
+      elif item and not is_price(message_so_far):
+        debug_print('Finish item without price')
+        item = None
+      # Try to find the price of the previous item or the next item.
+      if item and is_price(message_so_far):
+        debug_print('Update price')
         item.price = parse_price(message_so_far)
       elif not matches and not is_selling_matches:
+        debug_print('No match')
         message_so_far = ''
-        price = None
         item = None
       elif (len(is_selling_matches) == 1 and
             is_selling_matches[0][0] == message_so_far):
+        debug_print('is selling match')
         is_selling = is_selling_matches[0][1]
         message_so_far = ''
-        price = None
         item = None
       elif (len(matches) == 1 and matches[0][0] == message_so_far):
+        debug_print('item match')
         item = Item(matches[0][1], is_selling)
         all_items.append(item)
         message_so_far = ''
