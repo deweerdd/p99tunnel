@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
 
-import os
 
-import psycopg2
+import get_db_connection
 
-
-CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
-ROOT_PATH = os.path.dirname(CURRENT_FILE_PATH)
-PASSWORD_FILE_PATH = os.path.join(ROOT_PATH, 'database-password')
-DB_NAME = 'p99tunnel'
-DB_USER = 'p99tunnel'
 
 # The limits on character fields were determined by looking at a sample of logs
 # and figuring out how big things could be.
@@ -47,11 +40,7 @@ CREATE_TABLE_STATEMENTS = [
 
 
 def main():
-  with open(PASSWORD_FILE_PATH, 'r') as password_file:
-    password = password_file.read().strip()
-  with psycopg2.connect(
-      dbname=DB_NAME, user=DB_USER, password=password,
-      host='localhost') as conn:
+  with get_db_connection.connect() as conn:
     with conn.cursor() as cur:
       for statement in CREATE_TABLE_STATEMENTS:
         cur.execute(statement)
