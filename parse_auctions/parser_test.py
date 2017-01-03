@@ -12,7 +12,11 @@ TEST_ITEM_TABLE = {
 }
 
 AUCTION_TEST_CASES = {
-    'Cloak of Shadows': [parser.Item(13, True, None)],
+    'Ale': [parser.Item(17, True, None)],
+    'Cloak of Shadows, Ale': [
+      parser.Item(13, True, None), parser.Item(17, True, None)],
+    'WTS Ale': [parser.Item(17, True, None)],
+    'WTB Ale': [parser.Item(17, False, None)],
 }
 
 

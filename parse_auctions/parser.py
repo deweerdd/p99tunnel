@@ -27,6 +27,17 @@ class Item(object):
       return False
     return True
 
+  def __repr__(self):
+    message = ''
+    if self.is_selling:
+      message += 'WTS '
+    else:
+      message += 'WTB '
+    message += 'Item {}'.format(self.item_id)
+    if self.price != None:
+      message += ' {}'.format(self.price)
+    return message
+
 
 class Parser(object):
 
