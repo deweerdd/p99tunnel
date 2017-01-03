@@ -9,7 +9,9 @@ import pytrie
 
 IS_SELLING_TRIE = pytrie.StringTrie(
     wts=True, selling=True, wtb=False, buying=False)
-PRICE_REGEX = re.compile(r'^\s*(\d*\.?\d*)(k|p|pp)?$')
+# TODO: support things like WTS CoS 10 k (space between number and k)
+PRICE_REGEX = re.compile(r'^(\d*\.?\d*)(k|p|pp)?$')
+USELESS_PUNCTUATION_REGEX = re.compile(r'^[^\d\w]*(.*?)$')
 
 DEBUG = True
 
@@ -63,6 +65,13 @@ def parse_price(price_str):
     return int(amount) * factor
 
 
+def clean_useless_punctuation(s, matches1, matches2):
+  if matches1 or matches2 or is_price(s):
+    return s
+  match = USELESS_PUNCTUATION_REGEX.match(s).group(1)
+  return match
+
+
 class Item(object):
 
   def __init__(self, item_id, is_selling, price=None):
@@ -112,20 +121,25 @@ class Parser(object):
     - If the current characters are a full match for an item, then register that
       item.
     - After finding an item, try to process the next characters as a price.
+
+    TODO: it's hard to reason about the matching strategy.  Make it simpler.
+    TODO: this doesn't support quantities like 'WTS Diamond x8 100pp each' or
+          'WTS Diamond (8) 8k'.  A quantity without an 'x' will be interpreted
+          as a price.
     """
     all_items = []
     lowercase_message = auction_message.lower()
     is_selling = True
     item = None
-    # Find the items
     message_so_far = ''
-    # TODO: below is complicated.  Figure out a way to refactor it.
     for c in lowercase_message:
       message_so_far += c
-      message_so_far = message_so_far.lstrip()
       debug_print(message_so_far)
       is_selling_matches = IS_SELLING_TRIE.items(prefix=message_so_far)
       matches = self.items.items(prefix=message_so_far)
+      # If there's useless punctuation in the buffer, ditch it.
+      message_so_far = clean_useless_punctuation(
+          message_so_far, matches, is_selling_matches)
       # If one item is done, finish it.
       if item and item.price and not is_price(message_so_far):
         debug_print('Finish item with price')

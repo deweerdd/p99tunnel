@@ -13,6 +13,7 @@ TEST_ITEM_TABLE = {
 }
 
 AUCTION_TEST_CASES = collections.OrderedDict([
+    # Messages without prices
     ('Ale', [parser.Item(17, True, None)]),
     ('Cloak of Shadows, Ale', [
       parser.Item(13, True, None), parser.Item(17, True, None)]),
@@ -24,6 +25,7 @@ AUCTION_TEST_CASES = collections.OrderedDict([
       parser.Item(13, True, None), parser.Item(17, True, None)]),
     ('WTB Cloak of ShadowsAle', [
       parser.Item(13, False, None), parser.Item(17, False, None)]),
+    # Messages with prices
     ('Ale 123', [parser.Item(17, True, 123)]),
     ('Ale 123pp', [parser.Item(17, True, 123)]),
     ('Ale 1k', [parser.Item(17, True, 1000)]),
@@ -33,6 +35,17 @@ AUCTION_TEST_CASES = collections.OrderedDict([
       parser.Item(17, True, 1200), parser.Item(13, True, None)]),
     ('Ale 1.2k Cloak of Shadows 375', [
       parser.Item(17, True, 1200), parser.Item(13, True, 375)]),
+    # Messages with fancy punctuation
+    ('*=WTB=* Ale 123', [parser.Item(17, False, 123)]),
+    ('=Ale 123', [parser.Item(17, True, 123)]),
+    ('=Ale=Cloak of Shadows',
+      [parser.Item(17, True, None), parser.Item(13, True, None)]),
+    ('Ale: 123', [parser.Item(17, True, 123)]),
+    ('Ale- 123', [parser.Item(17, True, 123)]),
+    ('Ale << 123', [parser.Item(17, True, 123)]),
+    ('Ale (123)', [parser.Item(17, True, 123)]),
+    ('Ale: 123|Cloak of Shadows',
+      [parser.Item(17, True, 123), parser.Item(13, True, None)]),
 ])
 
 
