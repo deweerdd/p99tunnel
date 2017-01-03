@@ -23,6 +23,14 @@ class ParserTest(unittest.TestCase):
     self.assertEqual(seller, 'Toon')
     self.assertEqual(auction, message)
 
+  def test_split_line_fails_gracefully(self):
+    line = 'not a good log  message'
+    parser = parse_auctions.parser.Parser()
+    timestamp, seller, auction = parser.split_line(line)
+    self.assertEqual(timestamp, None)
+    self.assertEqual(seller, None)
+    self.assertEqual(auction, None)
+
 
 if __name__ == '__main__':
   unittest.main()

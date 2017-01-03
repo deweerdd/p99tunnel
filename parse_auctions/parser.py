@@ -18,4 +18,6 @@ class Parser(object):
     split_regex = r"^\[[^ ]+ ([^]]+)] ([^ ]+) auctions, '(.+)'$"
     pattern = re.compile(split_regex)
     match = pattern.match(line)
+    if match is None:
+      return None, None, None
     return match.group(1), match.group(2), match.group(3)
