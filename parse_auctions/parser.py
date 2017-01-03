@@ -126,6 +126,8 @@ class Parser(object):
     TODO: this doesn't support quantities like 'WTS Diamond x8 100pp each' or
           'WTS Diamond (8) 8k'.  A quantity without an 'x' will be interpreted
           as a price.
+    TODO: this does greedy matches, which means that it'll think things like
+          Yaulp IV are just plain old Yaulp.
     """
     all_items = []
     lowercase_message = auction_message.lower()
