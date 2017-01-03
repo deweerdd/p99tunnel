@@ -8,7 +8,7 @@ from parse_auctions import parser
 
 TEST_ITEM_TABLE = {
     'cloak of shadows': 13,
-    'root': 17,
+    'ale': 17,
 }
 
 AUCTION_TEST_CASES = {
@@ -19,17 +19,17 @@ AUCTION_TEST_CASES = {
 class ParserTest(unittest.TestCase):
 
   def setUp(self):
-    self.parser = parser.Parser()
+    self.parser = parser.Parser(test_item_table=TEST_ITEM_TABLE)
 
   def test_split_line(self):
-    line = "[Sun Jan 01 13:45:35 2017] Toon auctions, 'WTS Root'"
+    line = "[Sun Jan 01 13:45:35 2017] Toon auctions, 'WTS Ale'"
     timestamp, seller, auction = self.parser.split_line(line)
     self.assertEqual(timestamp, 'Jan 01 13:45:35 2017')
     self.assertEqual(seller, 'Toon')
-    self.assertEqual(auction, 'WTS Root')
+    self.assertEqual(auction, 'WTS Ale')
 
   def test_split_line_complicated(self):
-    message = "[]::''WTS Root"
+    message = "[]::''WTS Ale"
     line = "[Sun Jan 01 13:45:35 2017] Toon auctions, '{}'".format(message)
     timestamp, seller, auction = self.parser.split_line(line)
     self.assertEqual(timestamp, 'Jan 01 13:45:35 2017')
