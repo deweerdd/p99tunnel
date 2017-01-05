@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-import get_db_connection
+import db
 
 
 # The limits on character fields were determined by looking at a sample of logs
@@ -40,7 +40,7 @@ CREATE_TABLE_STATEMENTS = [
 
 
 def main():
-  with get_db_connection.connect() as conn:
+  with db.connect() as conn:
     with conn.cursor() as cur:
       for statement in CREATE_TABLE_STATEMENTS:
         cur.execute(statement)
