@@ -82,6 +82,16 @@ class ParserTest(unittest.TestCase):
     actual = parser.parse_timestamp(timestamp_str)
     self.assertEqual(actual, expected)
 
+  def test_parse_timestamp_normalized(self):
+    timestamp_str = 'Jan 02 13:45:35 2017'
+    server_time = datetime.datetime(2017, 1, 2, 15, 1, 0)
+    client_time = datetime.datetime(2017, 1, 2, 14, 00, 30)
+    # The server is 1 hour and 30 seconds ahead of the client.
+    offset = server_time - client_time
+    expected = datetime.datetime(2017, 1, 2, 14, 46, 5)
+    actual = parser.parse_timestamp_normalized(timestamp_str, offset)
+    self.assertEqual(actual, expected)
+
   def test_parse_auction(self):
     for auction_message, expected_output in AUCTION_TEST_CASES.items():
       actual_output = self.parser.parse_auction(auction_message)

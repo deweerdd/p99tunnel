@@ -13,7 +13,7 @@ IS_SELLING_TRIE = pytrie.StringTrie(
 PRICE_REGEX = re.compile(r'^(\d*\.?\d*)(k|p|pp)?$')
 USELESS_PUNCTUATION_REGEX = re.compile(r'^[^\d\w]*(.*?)$')
 
-DEBUG = True
+DEBUG = False
 
 
 def debug_print(message):
@@ -37,6 +37,15 @@ def parse_timestamp(timestamp_str):
   # TODO: support timezones
   timestamp = dateutil.parser.parse(timestamp_str)
   return timestamp
+
+
+def parse_timestamp_normalized(timestamp_str, client_time_offset):
+  """Parses the timestamp_str and returns a datetime in server-local time.
+
+  This is necessary to normalize for client clock skew and client time zones.
+  """
+  non_normalized_datetime = parse_timestamp(timestamp_str)
+  return non_normalized_datetime + client_time_offset
 
 
 def is_price(s):
