@@ -10,13 +10,36 @@ PASSWORD_FILE_PATH = os.path.join(ROOT_PATH, 'database-password')
 DB_NAME = 'p99tunnel'
 DB_USER = 'p99tunnel'
 
+CACHED_CONNECTION = None
+
 
 def get_db_password():
   with open(PASSWORD_FILE_PATH, 'r') as password_file:
     return password_file.read().strip()
+
 
 def connect():
   password = get_db_password()
   return psycopg2.connect(
       dbname=DB_NAME, user=DB_USER, password=password,
       host='localhost')
+
+
+def get_or_create_connection():
+  if CACHED_CONNECTION is None:
+    CACHED_CONNECTION = connect()
+  return CACHED_CONNECTION
+
+
+def get_or_create_character(name):
+  """Returns the ID associated with name, creating a row if necessary."""
+  with get_or_create_connection() as conn:
+    with conn.cursor() as cur:
+      cur.execute('SELECT id FROM characters WHERE name = %s', name)
+      result = cur.fetchone()
+      if result:
+        return result[0]
+      cur.execute(
+          'INSERT INTO characters (name) VALUES (%s) RETURNING id', name)
+      result = cur.fetchone()
+      return result[0]
