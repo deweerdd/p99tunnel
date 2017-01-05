@@ -34,7 +34,6 @@ def split_line(line):
 
 def parse_timestamp(timestamp_str):
   """Parses the timestamp_str and returns a datetime."""
-  # TODO: support timezones
   timestamp = dateutil.parser.parse(timestamp_str)
   return timestamp
 
@@ -114,6 +113,7 @@ class Parser(object):
   def __init__(self, test_item_table=None):
     if test_item_table:
       self.items = pytrie.StringTrie(**test_item_table)
+    # TODO: read items from the DB if no test table
 
   def parse_auction(self, auction_message):
     """Parses an auction message and returns a list of items.
