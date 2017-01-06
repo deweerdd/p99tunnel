@@ -29,7 +29,7 @@ CREATE_TABLE_STATEMENTS = [
   );""",
   """CREATE TABLE clean_auctions (
     id SERIAL PRIMARY KEY,
-    raw_auctions_id integer REFERENCES raw_auctions(id),
+    raw_auction_id integer REFERENCES raw_auctions(id),
     character_id integer REFERENCES characters(id),
     item_id integer REFERENCES items(id),
     timestamp timestamp,

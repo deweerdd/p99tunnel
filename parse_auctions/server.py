@@ -48,6 +48,10 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
     client_time_offset = get_client_time_offset(now, client_time_str)
     normalized_time = parser.parse_timestamp_normalized(
         log_timestamp, client_time_offset)
-    character_id = get_or_create_character(character)
+    character_id = db.get_or_create_character(character)
     items = PARSER.parse_auction(auction)
-    # TODO: insert items into db with the associated time and char id
+    raw_id = db.add_raw_auction(normalized_time, character_id, auction)
+    for item in items:
+      db.add_clean_auction(
+          raw_id, character_id, item.item_id, normalized_time,
+          item.is_selling, item.price)

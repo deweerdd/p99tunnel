@@ -43,3 +43,26 @@ def get_or_create_character(name):
           'INSERT INTO characters (name) VALUES (%s) RETURNING id', name)
       result = cur.fetchone()
       return result[0]
+
+def add_raw_auction(timestamp, character_id, message):
+  """Adds a raw auction to the db and returns its ID."""
+  with get_or_create_connection() as conn:
+    with conn.cursor() as cur:
+      cur.execute(
+          'INSERT INTO raw_auctions (timestamp, character_id, message) '
+          'VALUES (%s, %s, %s) RETURNING id',
+          (timestamp, character_id, message))
+      result = cur.fetchone()
+      return result[0]
+
+
+def add_clean_auction(
+    raw_auction_id, character_id, item_id, timestamp, is_selling, price):
+  with get_or_create_connection() as conn:
+    with conn.cursor() as cur:
+      cur.execute(
+          'INSERT INTO clean_auctions ( '
+          '  raw_auction_id, character_id, item_id, timestamp, is_selling, '
+          '  price) '
+          'VALUES (%s, %s, %s, %s, %s, %s)',
+          (raw_auction_id, character_id, item_id, timestamp, is_selling, price))
