@@ -55,3 +55,13 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
       db.add_clean_auction(
           raw_id, character_id, item.item_id, normalized_time,
           item.is_selling, item.price)
+
+def main():
+  server_address = ('p99tunnel.com', 8000)
+  httpd = http.server.HTTPServer(server_address, RequestHandler)
+  httpd.serve_forever()
+
+
+
+if __name__ == '__main__':
+  main()
