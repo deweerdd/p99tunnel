@@ -35,16 +35,20 @@ def get_client_time_offset(now, client_time_str):
 class RequestHandler(http.server.BaseHTTPRequestHandler):
 
   def do_POST(self):
+    self.log_message('New request')
     if self.path != '/upload_log':
       self.send_error(404)
-    body = self.rfile.read().strip()
+    content_length = int(self.headers.get('content-length', 0))
+    body = str(self.rfile.read(content_length).strip())
     client_time_str, sep, log_message = body.partition(' ')
     now = datetime.datetime.now()
     if not sep or not log_message:
       self.send_error(400, 'Need a timestamp followed by an EQ log message')
+      return
     log_timestamp, character, auction = parser.split_line(log_message)
     if not log_timestamp or not character or not auction:
       self.send_error(400, 'Need a valid auction message')
+      return
     client_time_offset = get_client_time_offset(now, client_time_str)
     normalized_time = parser.parse_timestamp_normalized(
         log_timestamp, client_time_offset)
@@ -56,11 +60,12 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
           raw_id, character_id, item.item_id, normalized_time,
           item.is_selling, item.price)
 
+
 def main():
-  server_address = ('p99tunnel.com', 8000)
+  print('Serving /upload_log on port 8000')
+  server_address = ('', 8000)
   httpd = http.server.HTTPServer(server_address, RequestHandler)
   httpd.serve_forever()
-
 
 
 if __name__ == '__main__':
