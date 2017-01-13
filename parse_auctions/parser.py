@@ -12,6 +12,7 @@ IS_SELLING_TRIE = pytrie.StringTrie(
 # TODO: support things like WTS CoS 10 k (space between number and k)
 PRICE_REGEX = re.compile(r'^(\d*\.?\d*)(k|p|pp)?$')
 USELESS_PUNCTUATION_REGEX = re.compile(r'^[^\d\w]*(.*?)$')
+SPLIT_REGEX = re.compile(r"^\[[^ ]+ ([^]]+)] ([^ ]+) auctions, '(.+)'$")
 
 DEBUG = False
 
@@ -24,9 +25,7 @@ def debug_print(message):
 def split_line(line):
   """Parses text and returns a timestamp, character, and message."""
   # Lines like: [Sun Jan 01 13:45:35 2017] Toon auctions, 'WTS Ale'
-  split_regex = r"^\[[^ ]+ ([^]]+)] ([^ ]+) auctions, '(.+)'$"
-  pattern = re.compile(split_regex)
-  match = pattern.match(line)
+  match = SPLIT_REGEX.match(line)
   if match is None:
     return None, None, None
   return match.group(1), match.group(2), match.group(3)
