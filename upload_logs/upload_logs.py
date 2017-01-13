@@ -35,8 +35,9 @@ class ProcessedLines(object):
 
   def __init__(self, path=PROCESSED_LINES_PATH):
     self.already_processed = {}
-    with open(path, 'r') as f:
-      self.already_processed = pickle.load(f)
+    if os.path.isfile(path):
+      with open(path, 'r') as f:
+        self.already_processed = pickle.load(f)
 
   def update_in_memory(stream, last_line):
     self.already_processed[stream.name] = last_line
@@ -48,12 +49,14 @@ class ProcessedLines(object):
 
 def get_log_directory():
   print('Getting log directory...')
-  with open(CACHED_LOG_DIR_PATH, 'r') as f:
-    path = f.read()
-    print('  Log directory: ' + path)
-    return path
+  if os.path.isfile(CACHED_LOG_DIR_PATH):
+    with open(CACHED_LOG_DIR_PATH, 'r') as f:
+      path = f.read()
+      print('  Log directory: ' + path)
+      return path
   path = input('Please paste in the path to your log directory: ').strip()
-  assert path.endswith('/') or path.endswith('\\')
+  path = os.path.expanduser(path)
+  assert os.path.isdir(path)
   with open(CACHED_LOG_DIR_PATH, 'w') as f:
     print('  Caching log directory...')
     f.write(path)
