@@ -59,6 +59,8 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
       db.add_clean_auction(
           raw_id, character_id, item.item_id, normalized_time,
           item.is_selling, item.price)
+    self.send_response(200)
+    self.end_headers()
 
 
 def main():
