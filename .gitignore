@@ -1,2 +1,3 @@
 database-password
 __pycache__
+.log-dir
