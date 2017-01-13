@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 import http
 import io
 import os
@@ -42,10 +43,10 @@ class ProcessedLines(object):
       with open(path, 'r') as f:
         self.already_processed = pickle.load(f)
 
-  def update_in_memory(stream, last_line):
+  def update_in_memory(self, stream, last_line):
     self.already_processed[stream.name] = last_line
 
-  def save_to_disk(path=PROCESSED_LINES_PATH):
+  def save_to_disk(self, path=PROCESSED_LINES_PATH):
     with open(path, 'w') as f:
       pickle.dump(self.already_processed, f)
 
@@ -118,8 +119,7 @@ def upload_auction(auction):
   post_body = '{} {}'.format(now_str, auction)
   response = requests.post(API_ENDPOINT, data=post_body)
   if response.status_code != 200:
-    print('Bad response: ')
-    print(response)
+    print('Bad response: ', response)
 
 
 def consume_log_output(stream):
