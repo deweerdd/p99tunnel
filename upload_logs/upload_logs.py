@@ -6,6 +6,7 @@ import io
 import os
 import pickle
 import re
+import time
 
 import dateutil.parser
 import requests
@@ -34,21 +35,29 @@ class NamedStream(object):
   def readline(self):
     return self.stream.readline()
 
+  def tell(self):
+    return self.stream.tell()
+
+  def seek(self, offset):
+    return self.stream.seek(offset)
+
 
 class ProcessedLines(object):
 
   def __init__(self, path=PROCESSED_LINES_PATH):
     self.already_processed = {}
     if os.path.isfile(path):
-      with open(path, 'r') as f:
+      with open(path, 'rb') as f:
         self.already_processed = pickle.load(f)
+        print('Starting at these lines for these characters:')
+        print(str(self.already_processed))
 
   def update_in_memory(self, stream, last_line):
     self.already_processed[stream.name] = last_line
 
   def save_to_disk(self, path=PROCESSED_LINES_PATH):
-    with open(path, 'w') as f:
-      pickle.dump(self.already_processed, f)
+    with open(path, 'wb') as f:
+      pickle.dump(self.already_processed, f, protocol=0)
 
   def get(self, stream_name):
     return self.already_processed.get(stream_name)
@@ -88,7 +97,7 @@ def get_log_streams(log_dir):
 
 def get_time(log_line):
   match = TIMESTAMP_REGEX.match(log_line)
-  timestamp_str = log_line.group(1)
+  timestamp_str = match.group(1)
   return dateutil.parser.parse(timestamp_str)
 
 
@@ -122,12 +131,13 @@ def upload_auction(auction):
     print('Bad response: ', response)
 
 
-def consume_log_output(stream):
+def consume_log_output(stream, last_line):
   while True:
     line = stream.readline()
     # The stream doesn't have any more output for us to consume
     if not line:
-      return
+      return last_line
+    last_line = line
     # I auctioned something, which means I need to reformat the line to look
     # like a generic auction
     match = MY_AUCTION_REGEX.match(line)
@@ -149,7 +159,7 @@ def main():
   print('Streaming log updates...')
   while True:
     for stream in log_streams:
-      last_line = consume_log_output(stream)
+      last_line = consume_log_output(stream, processed_lines.get(stream.name))
       processed_lines.update_in_memory(stream, last_line)
     processed_lines.save_to_disk()
     time.sleep(10)
