@@ -30,6 +30,9 @@ class NamedStream(object):
   def __repr__(self):
     return self.name
 
+  def readline(self):
+    return self.stream.readline()
+
 
 class ProcessedLines(object):
 
@@ -45,6 +48,9 @@ class ProcessedLines(object):
   def save_to_disk(path=PROCESSED_LINES_PATH):
     with open(path, 'w') as f:
       pickle.dump(self.already_processed, f)
+
+  def get(self, stream_name):
+    return self.already_processed.get(stream_name)
 
 
 def get_log_directory():
