@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
+import http
 import io
 import os
 import pickle
 
 import dateutil.parser
+import requests
 
 
 API_ENDPOINT = 'https://p99tunnel.com/upload_log'
@@ -98,11 +100,16 @@ def consume_up_to(stream, last_line):
 
 
 def get_local_time_str():
-  pass
+  return datetime.datetime.now().isoformat()
 
 
 def upload_auction(auction):
-  pass
+  now_str = get_local_time_str()
+  post_body = '{} {}'.format(now_str, auction)
+  response = requests.post(API_ENDPOINT, data=post_body)
+  if response.status_code != 200:
+    print('Bad response: ')
+    print(response)
 
 
 def consume_log_output(stream):
