@@ -8,7 +8,7 @@ import db
 from parse_auctions import parser
 
 
-ISO_FORMAT = 'YYYY-MM-DDTHH:MM:SS.mmmmmm'
+ISO_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 PARSER = parser.Parser()
 
@@ -39,7 +39,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
     if self.path != '/upload_log':
       self.send_error(404)
     content_length = int(self.headers.get('content-length', 0))
-    body = str(self.rfile.read(content_length).strip())
+    body = self.rfile.read(content_length).decode('utf-8').strip()
     client_time_str, sep, log_message = body.partition(' ')
     now = datetime.datetime.now()
     if not sep or not log_message:
