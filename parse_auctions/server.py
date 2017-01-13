@@ -54,6 +54,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
         log_timestamp, client_time_offset)
     character_id = db.get_or_create_character(character)
     items = PARSER.parse_auction(auction)
+    # TODO: check for duplicate items before inserting it into the db
     raw_id = db.add_raw_auction(normalized_time, character_id, auction)
     for item in items:
       db.add_clean_auction(
