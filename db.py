@@ -26,6 +26,7 @@ def connect():
 
 
 def get_or_create_connection():
+  global CACHED_CONNECTION
   if CACHED_CONNECTION is None:
     CACHED_CONNECTION = connect()
   return CACHED_CONNECTION
@@ -35,12 +36,12 @@ def get_or_create_character(name):
   """Returns the ID associated with name, creating a row if necessary."""
   with get_or_create_connection() as conn:
     with conn.cursor() as cur:
-      cur.execute('SELECT id FROM characters WHERE name = %s', name)
+      cur.execute('SELECT id FROM characters WHERE name = %s', (name,))
       result = cur.fetchone()
       if result:
         return result[0]
       cur.execute(
-          'INSERT INTO characters (name) VALUES (%s) RETURNING id', name)
+          'INSERT INTO characters (name) VALUES (%s) RETURNING id', (name,))
       result = cur.fetchone()
       return result[0]
 
