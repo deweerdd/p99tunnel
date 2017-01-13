@@ -6,6 +6,8 @@ import re
 import dateutil.parser
 import pytrie
 
+import db
+
 
 IS_SELLING_TRIE = pytrie.StringTrie(
     wts=True, selling=True, wtb=False, buying=False)
@@ -112,7 +114,13 @@ class Parser(object):
   def __init__(self, test_item_table=None):
     if test_item_table:
       self.items = pytrie.StringTrie(**test_item_table)
-    # TODO: read items from the DB if no test table
+    else:
+      all_items_list = db.get_all_items()
+      all_items_dict = {}
+      for item_id, item_name in all_items_list:
+        lowercase_name = item_name.lower()
+        all_items_dict[lowercase_name] = item_id
+      self.items = pytrie.StringTrie(**all_items_dict)
 
   def parse_auction(self, auction_message):
     """Parses an auction message and returns a list of items.
