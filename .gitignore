@@ -1,3 +1,4 @@
 database-password
 __pycache__
 .log-dir
+.processed-lines
