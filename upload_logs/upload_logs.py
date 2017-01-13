@@ -120,7 +120,7 @@ def consume_up_to(stream, last_line):
 
 
 def get_local_time_str():
-  return datetime.datetime.now().isoformat()
+  return datetime.datetime.now().replace(microsecond=0).isoformat()
 
 
 def upload_auction(auction):
