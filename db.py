@@ -67,3 +67,9 @@ def add_clean_auction(
           '  price) '
           'VALUES (%s, %s, %s, %s, %s, %s)',
           (raw_auction_id, character_id, item_id, timestamp, is_selling, price))
+
+def get_all_items():
+  with get_or_create_connection() as conn:
+    with conn.cursor() as cur:
+      cur.execute('SELECT id, canonical_name FROM items')
+      return cur.fetchall()
