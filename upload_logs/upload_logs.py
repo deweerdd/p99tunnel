@@ -4,6 +4,7 @@ import http
 import io
 import os
 import pickle
+import re
 
 import dateutil.parser
 import requests
