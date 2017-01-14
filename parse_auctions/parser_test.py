@@ -46,6 +46,7 @@ AUCTION_TEST_CASES = collections.OrderedDict([
     ('Ale (123)', [parser.Item(17, True, 123)]),
     ('Ale: 123|Cloak of Shadows',
       [parser.Item(17, True, 123), parser.Item(13, True, None)]),
+    ('Ale.', [parser.Item(17, True, None)]),
 ])
 
 

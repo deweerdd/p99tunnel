@@ -15,6 +15,7 @@ IS_SELLING_TRIE = pytrie.StringTrie(
 PRICE_REGEX = re.compile(r'^(\d*\.?\d*)(k|p|pp)?$')
 USELESS_PUNCTUATION_REGEX = re.compile(r'^[^\d\w]*(.*?)$')
 SPLIT_REGEX = re.compile(r"^\[[^ ]+ ([^]]+)] ([^ ]+) auctions, '(.+)'$")
+DIGIT_REGEX = re.compile(r'\d')
 
 DEBUG = False
 
@@ -56,6 +57,10 @@ def parse_price(price_str):
   match = PRICE_REGEX.match(price_str)
   amount = match.group(1)
   if len(amount) == 0:
+    return None
+  # Catch cases where there are auctions like "WTS Ale.".  The period will look
+  # like a price to is_price, but it won't turn into a float properly.
+  if not DIGIT_REGEX.match(price_str):
     return None
   denomination = match.group(2)
   if denomination == 'p' or denomination == 'pp':
