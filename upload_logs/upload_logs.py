@@ -124,15 +124,15 @@ def get_local_time_str():
   return datetime.datetime.now().replace(microsecond=0).isoformat()
 
 
-def upload_auction(auction):
+def upload_auction(session, auction):
   now_str = get_local_time_str()
   post_body = '{} {}'.format(now_str, auction).encode('utf-8')
-  response = requests.post(API_ENDPOINT, data=post_body, headers=UTF8_HEADER)
+  response = session.post(API_ENDPOINT, data=post_body)
   if response.status_code != 200:
     print('Bad response: ', response)
 
 
-def consume_log_output(stream, last_line):
+def consume_log_output(session, stream, last_line):
   while True:
     line = stream.readline()
     # The stream doesn't have any more output for us to consume
@@ -148,7 +148,7 @@ def consume_log_output(stream, last_line):
     # The line is a valid auction
     match = OTHER_AUCTION_REGEX.match(line)
     if match:
-      upload_auction(line)
+      upload_auction(session, line)
 
 
 def main():
@@ -158,11 +158,14 @@ def main():
   for stream in log_streams:
     consume_up_to(stream, processed_lines.get(stream.name))
   print('Streaming log updates...')
-  # TODO: use a request session so that only one TCP connection gets opened.
-  # Opening and closing oodles of connections is probably slowing things down.
+  # Use a request session so that only one TCP connection gets opened.
+  # Opening and closing oodles of connections would probably slow things down.
+  session = requests.Session()
+  session.headers.update(UTF8_HEADER)
   while True:
     for stream in log_streams:
-      last_line = consume_log_output(stream, processed_lines.get(stream.name))
+      last_line = consume_log_output(
+          session, stream, processed_lines.get(stream.name))
       processed_lines.update_in_memory(stream, last_line)
     processed_lines.save_to_disk()
     time.sleep(10)
