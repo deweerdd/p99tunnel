@@ -35,7 +35,6 @@ def get_client_time_offset(now, client_time_str):
 class RequestHandler(http.server.BaseHTTPRequestHandler):
 
   def do_POST(self):
-    self.log_message('New request')
     if self.path != '/upload_log':
       self.send_error(404)
     content_length = int(self.headers.get('content-length', 0))
