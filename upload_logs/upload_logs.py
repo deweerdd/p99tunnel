@@ -22,6 +22,7 @@ TIMESTAMP_REGEX = re.compile(r'^\[[^ ]+ ([^]]+)]')
 MY_AUCTION_REGEX = re.compile(r"^\[[^ ]+ [^]]+] You auction, '.+'$")
 OTHER_AUCTION_REGEX = re.compile(r"^\[[^ ]+ [^]]+] [^ ]+ auctions, '.+'$")
 
+UTF8_HEADER = {'Content-Encoding': 'utf-8'}
 
 class NamedStream(object):
 
@@ -125,8 +126,8 @@ def get_local_time_str():
 
 def upload_auction(auction):
   now_str = get_local_time_str()
-  post_body = '{} {}'.format(now_str, auction)
-  response = requests.post(API_ENDPOINT, data=post_body)
+  post_body = '{} {}'.format(now_str, auction).encode('utf-8')
+  response = requests.post(API_ENDPOINT, data=post_body, headers=UTF8_HEADER)
   if response.status_code != 200:
     print('Bad response: ', response)
 
