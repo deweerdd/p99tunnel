@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 import os
 
 import psycopg2
@@ -47,8 +48,22 @@ def get_or_create_character(name):
 
 def add_raw_auction(timestamp, character_id, message):
   """Adds a raw auction to the db and returns its ID."""
+  # Don't make a new entry if the exact same message has already been seen
+  # within one minute of this message.
+  one_minute = datetime.timedelta(seconds=60)
+  before = timestamp - one_minute
+  after = timestamp + one_minute
   with get_or_create_connection() as conn:
     with conn.cursor() as cur:
+      cur.execute(
+          'SELECT id FROM raw_auctions '
+          'WHERE character_id = %s AND timestamp > %s AND timestamp < %s AND '
+          '      message = %s',
+          (character_id, before, after, message))
+      # If we've already processed this auction, then return None without
+      # inserting a new row.
+      if cur.rowcount:
+        return None
       cur.execute(
           'INSERT INTO raw_auctions (timestamp, character_id, message) '
           'VALUES (%s, %s, %s) RETURNING id',

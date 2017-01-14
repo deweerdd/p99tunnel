@@ -54,12 +54,14 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
         log_timestamp, client_time_offset)
     character_id = db.get_or_create_character(character)
     items = PARSER.parse_auction(auction)
-    # TODO: check for duplicate items before inserting it into the db
     raw_id = db.add_raw_auction(normalized_time, character_id, auction)
-    for item in items:
-      db.add_clean_auction(
-          raw_id, character_id, item.item_id, normalized_time,
-          item.is_selling, item.price)
+    # If we've already seen this auction, raw_id will be None, signaling that we
+    # don't need to insert a new set of clean IDs.
+    if raw_id:
+      for item in items:
+        db.add_clean_auction(
+            raw_id, character_id, item.item_id, normalized_time,
+            item.is_selling, item.price)
     self.send_response(200)
     self.end_headers()
 
