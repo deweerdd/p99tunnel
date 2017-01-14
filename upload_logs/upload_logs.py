@@ -67,7 +67,7 @@ def get_log_directory():
   print('Getting log directory...')
   if os.path.isfile(CACHED_LOG_DIR_PATH):
     with open(CACHED_LOG_DIR_PATH, 'r') as f:
-      path = f.read()
+      path = f.read().strip()
       print('  Log directory: ' + path)
       return path
   path = input('Please paste in the path to your log directory: ').strip()
@@ -157,6 +157,8 @@ def main():
   for stream in log_streams:
     consume_up_to(stream, processed_lines.get(stream.name))
   print('Streaming log updates...')
+  # TODO: use a request session so that only one TCP connection gets opened.
+  # Opening and closing oodles of connections is probably slowing things down.
   while True:
     for stream in log_streams:
       last_line = consume_log_output(stream, processed_lines.get(stream.name))
